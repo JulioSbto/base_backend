@@ -3,8 +3,8 @@ const db = mysql.createConnection({
     host: '127.0.0.1',
     port: 3306,
     user: 'root',
-    password: 'root',
-    database: 'NOME DO BANCO DE DADOS AQUI',
+    password: '',
+    database: 'base_revisao_saep',
     dateStrings: true
 });
 db.connect((erro)=>{
@@ -15,4 +15,5 @@ db.connect((erro)=>{
     }
     console.log('Conexão com o banco de dados estabelecida com sucesso');
 });
+
 module.exports = db;
