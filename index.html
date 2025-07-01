@@ -8,7 +8,7 @@
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 </head>
 <body>
-    <div id="menu_topo">
+    <header id="menu_topo">
             <div>Gestão de chamados</div>
 
             <div id="menus">
@@ -16,29 +16,166 @@
                 <div id="btn_clientes">Cadastrar clientes</div>
                 <div id="btn_chamados">Cadastrar chamados</div>
             </div>
-    </div>
+    </header>
 
-    <div id="conteudo">
+    <main id="conteudo">
         <div id="caixa_alta"></div>
         <div id="caixa_media"></div>
         <div id="caixa_baixa"></div>
-    </div>
+    </main>
 
-    <div id="tela_escura">
-        <div id="form_cad_cliente" class="formularios">
+    <section id="tela_escura">
+
+        <form id="form_editar_chamado" class="formularios">
+            <button id="fechar_form_editar_chamado">x</button><br>
+            <h1>Editar/Deletar Chamado</h1>
+
+            ID do Chamado: <br>
+            <input type="text" id="caixa_id_chamado" disabled> <br><br>
+
+            Assunto: <br>
+            <input type="text" id="caixa_assunto"> <br><br>
+
+            Descrição: <br>
+            <input type="text" id="caixa_descricao"></input> <br><br>
+
+            Cliente: <br>
+            <select id="caixa_cliente"></select> <br><br>
+            
+            Prioridade: <br>
+            <select id="caixa_prioridade">
+                <option value="">Selecione</option>
+                <option value="Alta">Alta</option>
+                <option value="Média">Média</option>
+                <option value="Baxa">Baixa</option>
+            </select> <br><br>
+
+            <button id="btn_cad_chamado">Cadastrar</button>
+        </form>
+
+        <form id="form_cad_chamado" class="formularios">
+            <button id="fechar_form_cad_chamado">x</button><br>
+            <h1>Cadastrar Chamado</h1>
+
+            Assunto: <br>
+            <input type="text" id="caixa_assunto"> <br><br>
+
+            Descrição: <br>
+            <input type="text" id="caixa_descricao"></input> <br><br>
+
+            Cliente: <br>
+            <select id="caixa_cliente"></select> <br><br>
+            
+            Prioridade: <br>
+            <select id="caixa_prioridade">
+                <option value="">Selecione</option>
+                <option value="Alta">Alta</option>
+                <option value="Média">Média</option>
+                <option value="Baxa">Baixa</option>
+            </select> <br><br>
+
+            <button id="btn_cad_chamado">Cadastrar</button>
+        </form>
+
+        <form id="form_cad_cliente" class="formularios">
             <button id="fechar_form_cad_cliente">x</button> <br>
+
+            <h1>Cadastrar Cliente</h1>
             Nome: <br>
             <input type="text" id="caixa_nome"> <br><br>
             E-mail: <br>
             <input type="email" id="caixa_email"> <br><br>
             <button id="btn_cad_cliente">Cadastrar cliente</button>
-        </div>
-    </div>
+        </form>
+    </section>
 
 
     <script>
+        $(document).on("click", ".cartoes", function(){
+            $("#form_editar_chamado").show();
+            $("#tela_escura").show();
+
+            var id_chamado =$(this).find("#id_chamado").text()
+            $("#form_editar_chamado #caixa_id_chamado").val(id_chamado)
+
+            var assunto = $(this).find("#assunto").text()
+            $("#form_editar_chamado #caixa_assunto").val(assunto)
+
+            var descricao = $(this).find("#descricao").text()
+            $("#form_editar_chamado #caixa_descricao").val(descricao)
+
+            var cliente = $(this).find("#id_cliente").text()
+            $("#form_editar_chamado #caixa_cliente").val(cliente)
+
+            var prioridade = $(this).find("#prioridade").text()
+            $("#form_editar_chamado #caixa_prioridade").val(prioridade)
+            
+        })
+
+        function carregarClientes(){
+            $.ajax({
+                url: "http://localhost:3000/clientes",
+                type: "GET",
+                dataType: "json",
+                contentType: "application/json",
+                success: function(resposta){
+                    resposta.forEach(function(dados){
+                        $("#form_cad_chamado #caixa_cliente").append(`
+                        <option value='${dados.id_cliente}'>
+                            ${dados.nome}
+                        </option>
+                    `)
+                    $("#form_editar_chamado #caixa_cliente").append(`
+                        <option value='${dados.id_cliente}'>
+                            ${dados.nome}
+                        </option>
+                    `)
+                    })
+                },
+                error: function(){
+                    alert("Falha no GET /clientes")
+                }
+            })
+        }
+
         $(document).ready(function(){
             $("#conteudo").hide()
+            $("#form_cad_cliente").hide();
+            $("#form_cad_chamado").hide();
+            $("#form_editar_chamado").hide();
+            $("#tela_escura").hide();
+            carregarClientes();
+        })
+
+        // Abrir cadastro de Cliente
+        $("#btn_clientes").click(function(){
+            $("#form_cad_cliente").show();
+            $("#tela_escura").show();
+        })
+
+        // Abrir cadastro de chamados
+        $("#btn_chamados").click(function(){
+            $("#form_cad_chamado").show();
+            $("#tela_escura").show();
+        })
+
+        
+        // Fechar formulário de cadastrar cliente
+        $("#fechar_form_cad_cliente").click(function(){
+            $("#form_cad_cliente").hide();
+            $("#tela_escura").hide();
+        })
+
+        // Fechar formulário de cadastrar chamado
+        $("#fechar_form_cad_chamado").click(function(){
+            $("#form_cad_chamado").hide();
+            $("#tela_escura").hide();
+        })
+
+        // Fechar formulário e editar/deletar chamado
+        $("#fechar_form_editar_chamado").click(function(){
+            $("#form_editar_chamado").hide();
+            $("#tela_escura").hide();
         })
 
         $("#btn_gerenciar").click(function(){
@@ -56,10 +193,12 @@
                     resposta.forEach(function(dados){
                         $("#caixa_alta").append(`
                             <div class='cartoes'>
+                                ID Chamado: <span id='id_chamado'>${dados.id_chamado}</span> <br>
                                 Assunto: <span id='assunto'>${dados.assunto}</span> <br>
                                 Descrição: <span id='descricao'>${dados.descricao}</span> <br>
-                                Cliente: <span id='nome'>${dados.nome}</span> <br>
+                                Nome Cliente: <span id='nome'>${dados.nome}</span> <br>
                                 ID Cliente: <span id='id_cliente'>${dados.id_cliente}</span> <br>
+                                Assunto: <span id='assunto'>${dados.assunto}</span> <br>
                                 Prioridade: <span id='prioridade'>${dados.prioridade}</span> <br>
                             </div>
                         `)
@@ -79,10 +218,12 @@
                     resposta.forEach(function(dados){
                         $("#caixa_media").append(`
                             <div class='cartoes'>
+                                ID Chamado: <span id='id_chamado'>${dados.id_chamado}</span> <br>
                                 Assunto: <span id='assunto'>${dados.assunto}</span> <br>
                                 Descrição: <span id='descricao'>${dados.descricao}</span> <br>
-                                Cliente: <span id='nome'>${dados.nome}</span> <br>
+                                Nome Cliente: <span id='nome'>${dados.nome}</span> <br>
                                 ID Cliente: <span id='id_cliente'>${dados.id_cliente}</span> <br>
+                                Assunto: <span id='assunto'>${dados.assunto}</span> <br>
                                 Prioridade: <span id='prioridade'>${dados.prioridade}</span> <br>
                             </div>
                         `)
@@ -101,10 +242,12 @@
                     resposta.forEach(function(dados){
                         $("#caixa_baixa").append(`
                             <div class='cartoes'>
+                                ID Chamado: <span id='id_chamado'>${dados.id_chamado}</span> <br>
                                 Assunto: <span id='assunto'>${dados.assunto}</span> <br>
                                 Descrição: <span id='descricao'>${dados.descricao}</span> <br>
-                                Cliente: <span id='nome'>${dados.nome}</span> <br>
+                                Nome Cliente: <span id='nome'>${dados.nome}</span> <br>
                                 ID Cliente: <span id='id_cliente'>${dados.id_cliente}</span> <br>
+                                Assunto: <span id='assunto'>${dados.assunto}</span> <br>
                                 Prioridade: <span id='prioridade'>${dados.prioridade}</span> <br>
                             </div>
                         `)
