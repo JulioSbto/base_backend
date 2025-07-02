@@ -27,7 +27,7 @@
     <section id="tela_escura">
 
         <form id="form_editar_chamado" class="formularios">
-            <button id="fechar_form_editar_chamado">x</button><br>
+            <button id="fechar_form_editar_chamado" type="button">x</button><br>
             <h1>Editar/Deletar Chamado</h1>
 
             ID do Chamado: <br>
@@ -47,14 +47,15 @@
                 <option value="">Selecione</option>
                 <option value="Alta">Alta</option>
                 <option value="Média">Média</option>
-                <option value="Baxa">Baixa</option>
+                <option value="Baixa">Baixa</option>
             </select> <br><br>
 
-            <button id="btn_cad_chamado">Cadastrar</button>
+            <button id="btn_salvar_chamado" type="button">Salvar Alterações</button>
+            <button id="btn_deletar_chamado" type="button">Deletar</button>
         </form>
 
         <form id="form_cad_chamado" class="formularios">
-            <button id="fechar_form_cad_chamado">x</button><br>
+            <button id="fechar_form_cad_chamado" type="button">x</button><br>
             <h1>Cadastrar Chamado</h1>
 
             Assunto: <br>
@@ -71,26 +72,125 @@
                 <option value="">Selecione</option>
                 <option value="Alta">Alta</option>
                 <option value="Média">Média</option>
-                <option value="Baxa">Baixa</option>
+                <option value="Baixa">Baixa</option>
             </select> <br><br>
 
-            <button id="btn_cad_chamado">Cadastrar</button>
+            <button id="btn_cad_chamado" type="button">Cadastrar</button>
         </form>
 
         <form id="form_cad_cliente" class="formularios">
-            <button id="fechar_form_cad_cliente">x</button> <br>
+            <button id="fechar_form_cad_cliente" type="button">x</button> <br>
 
             <h1>Cadastrar Cliente</h1>
             Nome: <br>
             <input type="text" id="caixa_nome"> <br><br>
             E-mail: <br>
             <input type="email" id="caixa_email"> <br><br>
-            <button id="btn_cad_cliente">Cadastrar cliente</button>
+            <button id="btn_cad_cliente" type="button">Cadastrar cliente</button>
         </form>
     </section>
 
 
     <script>
+        // Click no botão de cadastrar chamado
+        $("#btn_cad_chamado").click(function(){
+            $("#form_cad_chamado").hide();
+            $("#tela_escura").hide();
+            
+            var assunto = $("#form_cad_chamado #caixa_assunto").val()
+            var descricao= $("#form_cad_chamado #caixa_descricao").val()
+            var fk_id_cliente = $("#form_cad_chamado #caixa_cliente").val()
+            var prioridade = $("#form_cad_chamado #caixa_prioridade").val()
+
+            $.ajax({
+                url: "http://localhost:3000/chamados", 
+                type: "POST" ,
+                dataType: "json",
+                contentType: "application/json",
+                data: JSON.stringify({assunto, descricao, fk_id_cliente, prioridade}),
+                success: function(resposta){
+                    alert(resposta.msg)
+                    location.reload()
+                },
+                error: function(){
+                    alert("Falha no POST /chamados")
+                }
+            })
+        })
+
+        // Click no botão de cadastrar cliente
+        $("#btn_cad_cliente").click(function(){
+            $("#form_cad_cliente").hide();
+            $("#tela_escura").hide();
+
+            var nome = $("#form_cad_cliente #caixa_nome").val()
+            var email = $("#form_cad_cliente #caixa_email").val()
+
+            $.ajax({
+                url: "http://localhost:3000/clientes",
+                type: "POST" ,
+                dataType: "json",
+                contentType: "application/json",
+                data: JSON.stringify({nome, email}),
+                success: function(resposta){
+                    alert(resposta.msg)
+                    location.reload()
+                },
+                error: function(){
+                    alert("Falha no POST /clientes")
+                }
+            })
+        })
+
+        // Click no botão salvar chamado
+        $("#btn_salvar_chamado").click(function(){
+            $("#form_editar_chamado").hide();
+            $("#tela_escura").hide();
+
+            var id_chamado = $("#form_editar_chamado #caixa_id_chamado").val()
+            var fk_id_cliente = $("#form_editar_chamado #caixa_cliente").val()
+            var prioridade = $("#form_editar_chamado #caixa_prioridade").val()
+            var assunto = $("#form_editar_chamado #caixa_assunto").val()
+            var descricao= $("#form_editar_chamado #caixa_descricao").val()
+
+            $.ajax({
+                url: "http://localhost:3000/chamado",
+                type: "PUT" ,
+                dataType: "json",
+                contentType: "application/json",
+                data: JSON.stringify({id_chamado, fk_id_cliente, prioridade, assunto, descricao}),
+                success: function(resposta){
+                    alert(resposta.msg)
+                    location.reload()
+                },
+                error: function(){
+                    alert("Falha no PUT /chamado")
+                }
+            })
+        })
+
+        // Click no botão de deletar chamado
+        $("#btn_deletar_chamado").click(function(){
+            var id_chamado = $("#form_editar_chamado #caixa_id_chamado").val()
+            if(!confirm("Tem certeza que deseja apagar o chamado nº "+id_chamado+"?")){
+                return;
+            }
+            $.ajax({
+                url: "http://localhost:3000/chamado/"+id_chamado,
+                type: "DELETE",
+                dataType: "json",
+                contentType: "application/json",
+                success: function(resposta){
+                    alert(resposta.msg)
+                    location.reload() //recarrega a pagina
+                },
+                error: function(){
+                    alert("Falha no DELETE /chamado")
+                }
+            })
+        })
+
+        // Click nos cartões
         $(document).on("click", ".cartoes", function(){
             $("#form_editar_chamado").show();
             $("#tela_escura").show();
@@ -198,7 +298,6 @@
                                 Descrição: <span id='descricao'>${dados.descricao}</span> <br>
                                 Nome Cliente: <span id='nome'>${dados.nome}</span> <br>
                                 ID Cliente: <span id='id_cliente'>${dados.id_cliente}</span> <br>
-                                Assunto: <span id='assunto'>${dados.assunto}</span> <br>
                                 Prioridade: <span id='prioridade'>${dados.prioridade}</span> <br>
                             </div>
                         `)
@@ -223,7 +322,6 @@
                                 Descrição: <span id='descricao'>${dados.descricao}</span> <br>
                                 Nome Cliente: <span id='nome'>${dados.nome}</span> <br>
                                 ID Cliente: <span id='id_cliente'>${dados.id_cliente}</span> <br>
-                                Assunto: <span id='assunto'>${dados.assunto}</span> <br>
                                 Prioridade: <span id='prioridade'>${dados.prioridade}</span> <br>
                             </div>
                         `)
@@ -247,7 +345,6 @@
                                 Descrição: <span id='descricao'>${dados.descricao}</span> <br>
                                 Nome Cliente: <span id='nome'>${dados.nome}</span> <br>
                                 ID Cliente: <span id='id_cliente'>${dados.id_cliente}</span> <br>
-                                Assunto: <span id='assunto'>${dados.assunto}</span> <br>
                                 Prioridade: <span id='prioridade'>${dados.prioridade}</span> <br>
                             </div>
                         `)
@@ -259,13 +356,6 @@
             })//Fim do ajax3
 
         }) // Fim do click no botão gerenciar
-
-
-
-           
-
-
-
 
     </script>
 
